@@ -11,22 +11,26 @@ window.onload = function () {
 		var dx = 0,
 			dy = 0;
 
-		switch (e.key.toLowerCase()) {
-			case "w":
+		switch (e.code) {
+			case "KeyW":
+			case "ArrowUp":
 				dy = -1;
 				break;
-			case "s":
+			case "KeyS":
+			case "ArrowDown":
 				dy = 1;
 				break;
-			case "a":
+			case "KeyA":
+			case "ArrowLeft":
 				dx = -1;
 				break;
-			case "d":
+			case "KeyD":
+			case "ArrowRight":
 				dx = 1;
 				break;
-			case " ":
+			case "Space":
 				game.field.playerAttack();
-				break;
+				return;
 			default:
 				return;
 		}
