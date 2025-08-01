@@ -18,9 +18,18 @@ Field.prototype.init = function () {
 	this.generateRoads();
 	this.generateRooms();
 	this.spawn("health", (tile) => tile.isFloor(), COUNT_HEALTH);
-	this.spawn("sword", (tile) => tile.isFloor() && !tile.isHealth(), COUNT_SWORD);
+	this.spawn(
+		"sword",
+		(tile) => tile.isFloor() && !tile.isHealth(),
+		COUNT_SWORD
+	);
 	this.spawn("player", (tile) => tile.isFloor() && !tile.isEnemy(), 1);
-	this.spawn("enemy", (tile) => tile.isFloor() && !tile.isPlayer(), COUNT_ENEMY);
+	this.spawn(
+		"enemy",
+		(tile) => tile.isFloor() && !tile.isPlayer(),
+		COUNT_ENEMY
+	);
+	this.startEnemyLoop();
 };
 
 Field.prototype.generateTiles = function () {
@@ -101,7 +110,9 @@ Field.prototype.spawn = function (type, conditionFn, count) {
 	}
 
 	if (type === "player") {
-		this.player = new Player(availableTiles[0].x, availableTiles[0].y);
+		this.player = new Player(availableTiles[0].x, availableTiles[0].y, {
+			onDeath: this.stopEnemyLoop.bind(this)
+		});
 
 		const tile = availableTiles[0];
 		tile.setItem(null);
@@ -156,7 +167,6 @@ Field.prototype.movePlayer = function (dx, dy) {
 	renderPlayer(newTile, this.player);
 
 	this.camera.update();
-	this.updateEnemies();
 };
 
 Field.prototype.playerAttack = function () {
@@ -182,16 +192,31 @@ Field.prototype.playerAttack = function () {
 
 			if (enemy.health <= 0) {
 				this.enemies.splice(this.enemies.indexOf(enemy), 1);
+				if (this.enemies.length === 0) {
+					this.stopEnemyLoop();
+				}
 				clearEnemy(tile);
 			}
 		}
 	}
 };
 
+Field.prototype.startEnemyLoop = function () {
+	this.enemyLoop = setInterval(() => {
+		this.updateEnemies();
+	}, 500);
+};
+
+Field.prototype.stopEnemyLoop = function () {
+	if (this.enemyLoop) {
+		clearInterval(this.enemyLoop);
+		this.enemyLoop = null;
+	}
+};
+
 Field.prototype.updateEnemies = function () {
-	for (var i = 0; i < this.enemies.length; i++) {
-		var enemy = this.enemies[i];
-		enemy.moveTowardsPlayerOrRandom(this, this.player);
+	for (let enemy of this.enemies) {
+		enemy.patrol(this, this.player);
 	}
 };
 

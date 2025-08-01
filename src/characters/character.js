@@ -1,4 +1,4 @@
-function Character(x, y) {
+function Character(x, y, options = {}) {
 	this.x = x;
 	this.y = y;
 	this.direction = "right";
@@ -20,10 +20,16 @@ Character.prototype.getPower = function () {
 	return this.power;
 };
 
-Character.prototype.takeDamage = function (amount) {
+Character.prototype.takeDamage = function (amount, field) {
 	this.health -= amount;
 	if (this.health <= 0) {
 		this.health = 0;
+	}
+	const tile = field.tiles[this.x][this.y];
+	const tileEl = tile.getElement();
+	renderHealthBar(tileEl, this.health, this.maxHealth);
+
+	if (this.health === 0) {
 		this.died();
 	}
 };

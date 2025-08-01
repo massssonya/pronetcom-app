@@ -4,10 +4,9 @@ function renderTile(tile, container) {
 }
 
 function updateRendering(tileEl, baseType, itemType, characterType) {
-	tileEl.innerHTML = ""; // очистить содержимое перед перерисовкой
+	tileEl.innerHTML = "";
 	tileEl.className = "tile";
 
-	// base layer
 	const baseEl = document.createElement("div");
 	baseEl.className = "tile-base";
 	switch (baseType) {
@@ -19,7 +18,6 @@ function updateRendering(tileEl, baseType, itemType, characterType) {
 	}
 	tileEl.appendChild(baseEl);
 
-	// item layer
 	if (itemType === "sword" || itemType === "health") {
 		const itemEl = document.createElement("div");
 		itemEl.className = "tile-item";
@@ -28,7 +26,6 @@ function updateRendering(tileEl, baseType, itemType, characterType) {
 		tileEl.appendChild(itemEl);
 	}
 
-	// character layer
 	if (characterType === "player" || characterType === "enemy") {
 		const charEl = document.createElement("div");
 		charEl.className = "tile-character";
@@ -42,17 +39,14 @@ function updateRendering(tileEl, baseType, itemType, characterType) {
 }
 
 function renderHealthBar(tileEl, health, maxHealth) {
-	// Найти элемент персонажа
 	var characterEl = tileEl.querySelector(".tile-character");
 	if (!characterEl) return;
 
-	// Удалить старый индикатор здоровья, если есть
 	var oldHealth = characterEl.querySelector(".health");
 	if (oldHealth) {
 		oldHealth.remove();
 	}
 
-	// Создать новый индикатор
 	var healthEl = document.createElement("div");
 	healthEl.className = "health";
 
@@ -60,16 +54,4 @@ function renderHealthBar(tileEl, health, maxHealth) {
 
 
 	characterEl.appendChild(healthEl);
-
-	// var oldHealth = tileEl.querySelector(".health");
-	// if (oldHealth) {
-	// 	tileEl.removeChild(oldHealth);
-	// }
-
-	// var healthEl = document.createElement("div");
-	// healthEl.className = "health";
-
-	// healthEl.style.width = (health / maxHealth) * 100 + "%";
-
-	// tileEl.appendChild(healthEl);
 }

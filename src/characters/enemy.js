@@ -1,4 +1,4 @@
-function Enemy(x, y) {
+function Enemy(x, y, options = {}) {
 	Character.call(this, x, y);
 	this.power = 1;
 	this.health = 3;
@@ -15,9 +15,9 @@ Enemy.prototype.isAdjacentTo = function (player) {
 	return dx <= 1 && dy <= 1 && !(dx === 0 && dy === 0);
 };
 
-Enemy.prototype.attackIfAdjacent = function (player) {
+Enemy.prototype.attackIfAdjacent = function (player, field) {
 	if (this.isAdjacentTo(player)) {
-		player.takeDamage(this.power);
+		player.takeDamage(this.power, field);
 	}
 };
 
@@ -59,6 +59,35 @@ Enemy.prototype.moveTowardsPlayerOrRandom = function (field, player) {
 			var newTile = field.tiles[this.x][this.y];
 			renderEnemy(newTile, this);
 			break;
+		}
+	}
+};
+
+Enemy.prototype.patrol = function (field, player) {
+	this.attackIfAdjacent(player, field);
+
+	if (this.isAdjacentTo(player)) return;
+
+	const directions = shuffleArray([
+		{ dx: 1, dy: 0 },
+		{ dx: -1, dy: 0 },
+		{ dx: 0, dy: 1 },
+		{ dx: 0, dy: -1 }
+	]);
+
+	for (let dir of directions) {
+		const newX = this.x + dir.dx;
+		const newY = this.y + dir.dy;
+
+		if (newX >= 0 && newX < field.width && newY >= 0 && newY < field.height) {
+			const tile = field.tiles[newX][newY];
+			if (tile.isFloor() && !tile.isEnemy() && !tile.isPlayer()) {
+				clearEnemy(field.tiles[this.x][this.y]);
+				this.x = newX;
+				this.y = newY;
+				renderEnemy(tile, this);
+				break;
+			}
 		}
 	}
 };
