@@ -1,10 +1,13 @@
-function Tile(x, y, type = "wall") {
+function Tile(x, y, baseType = "wall", itemType = null, characterType = null) {
 	this.x = x;
 	this.y = y;
-	this.type = type;
+
+	this.baseType = baseType; // floor, wall
+	this.itemType = itemType; // sword, health
+	this.characterType = characterType; // player, enemy
 
 	this.el = document.createElement("div");
-	this.setType(type);
+	this.setBaseType(baseType);
 
 	this.el.style.left = `${x * TILE_SIZE}px`;
 	this.el.style.top = `${y * TILE_SIZE}px`;
@@ -12,33 +15,43 @@ function Tile(x, y, type = "wall") {
 	this.el.dataset.y = y.toString();
 }
 
-Tile.prototype.setType = function (type) {
-	this.type = type;
-	renderTileType(this.el, type);
+Tile.prototype.setBaseType = function (type) {
+	this.baseType = type;
+	updateRendering(this.el, type, this.itemType, this.characterType);
+};
+
+Tile.prototype.setItem = function (type) {
+	this.itemType = type;
+	updateRendering(this.el, this.baseType, type, this.characterType);
+};
+
+Tile.prototype.setCharacter = function (type) {
+	this.characterType = type;
+	updateRendering(this.el, this.baseType, this.itemType, type);
 };
 
 Tile.prototype.isWall = function () {
-	return this.type === "wall";
+	return this.baseType === "wall";
 };
 
 Tile.prototype.isFloor = function () {
-	return this.type === "floor";
+	return this.baseType === "floor";
 };
 
 Tile.prototype.isPlayer = function () {
-	return this.type === "player";
+	return this.characterType === "player";
 };
 
 Tile.prototype.isEnemy = function () {
-	return this.type === "enemy";
+	return this.characterType === "enemy";
 };
 
 Tile.prototype.isSword = function () {
-	return this.type === "sword";
+	return this.itemType === "sword";
 };
 
 Tile.prototype.isHealth = function () {
-	return this.type === "health";
+	return this.itemType === "health";
 };
 
 Tile.prototype.getElement = function () {

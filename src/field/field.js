@@ -18,9 +18,9 @@ Field.prototype.init = function () {
 	this.generateRoads();
 	this.generateRooms();
 	this.spawn("health", (tile) => tile.isFloor(), COUNT_HEALTH);
-	this.spawn("sword", (tile) => tile.isFloor(), COUNT_SWORD);
-	this.spawn("player", (tile) => tile.isFloor(), 1);
-	this.spawn("enemy", (tile) => tile.isFloor(), COUNT_ENEMY);
+	this.spawn("sword", (tile) => tile.isFloor() && !tile.isHealth(), COUNT_SWORD);
+	this.spawn("player", (tile) => tile.isFloor() && !tile.isEnemy(), 1);
+	this.spawn("enemy", (tile) => tile.isFloor() && !tile.isPlayer(), COUNT_ENEMY);
 };
 
 Field.prototype.generateTiles = function () {
@@ -56,7 +56,7 @@ Field.prototype.generateRooms = function () {
 
 			for (var tx = x; tx < x + w; tx++) {
 				for (var ty = y; ty < y + h; ty++) {
-					this.tiles[tx][ty].setType("floor");
+					this.tiles[tx][ty].setBaseType("floor");
 				}
 			}
 		}
@@ -97,13 +97,15 @@ Field.prototype.spawn = function (type, conditionFn, count) {
 	shuffleArray(availableTiles);
 
 	for (var i = 0; i < count && i < availableTiles.length; i++) {
-		availableTiles[i].setType(type);
+		availableTiles[i].setItem(type);
 	}
 
 	if (type === "player") {
 		this.player = new Player(availableTiles[0].x, availableTiles[0].y);
 
 		const tile = availableTiles[0];
+		tile.setItem(null);
+		tile.setCharacter("player");
 		renderPlayer(tile, this.player);
 
 		this.camera.follow(this.player);
@@ -113,6 +115,8 @@ Field.prototype.spawn = function (type, conditionFn, count) {
 	if (type === "enemy") {
 		for (var i = 0; i < count; i++) {
 			const tile = availableTiles[i];
+			tile.setItem(null);
+			tile.setCharacter("enemy");
 			const enemy = new Enemy(tile.x, tile.y);
 			this.enemies.push(enemy);
 			renderEnemy(tile, enemy);
@@ -130,16 +134,17 @@ Field.prototype.movePlayer = function (dx, dy) {
 
 	if (!targetTile.isFloor() && !targetTile.isHealth() && !targetTile.isSword())
 		return;
+	if (targetTile.isEnemy()) return;
 
 	if (targetTile.isHealth()) {
 		this.player.setHealth(1);
-		targetTile.setType("floor");
+		targetTile.setItem(null);
 	}
 
 	if (targetTile.isSword()) {
 		this.player.setPower(1);
 		this.player.addToInventory("sword");
-		targetTile.setType("floor");
+		targetTile.setItem(null);
 	}
 
 	var oldTile = this.tiles[this.player.x][this.player.y];
@@ -202,7 +207,7 @@ function generateRoad(tiles, startX, startY, length, direction, roads) {
 			var x = startX + dx;
 			var y = startY + dy;
 			if (tiles[x] && tiles[x][y]) {
-				tiles[x][y].setType("floor");
+				tiles[x][y].setBaseType("floor");
 			}
 		}
 	}
@@ -234,7 +239,7 @@ function isRoomAdjacentToRoad(room, tiles) {
 		for (var y = room.y - 1; y <= room.y + room.height; y++) {
 			if (x < 0 || y < 0 || x >= tiles.length || y >= tiles[0].length) continue;
 
-			if (tiles[x][y].type === "floor") {
+			if (tiles[x][y].isFloor()) {
 				return true;
 			}
 		}

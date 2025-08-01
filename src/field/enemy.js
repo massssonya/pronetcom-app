@@ -40,14 +40,16 @@ Enemy.prototype.moveTowardsPlayerOrRandom = function (field, player) {
 		var dir = directions[i];
 		var newX = this.x + dir.dx;
 		var newY = this.y + dir.dy;
-
+		var targetTile = field.tiles[newX][newY];
 		if (
 			newX >= 0 &&
 			newX < field.width &&
 			newY >= 0 &&
 			newY < field.height &&
-			field.tiles[newX][newY].isFloor()
+			targetTile.isFloor()
 		) {
+			if (targetTile.isPlayer() || targetTile.isEnemy()) continue;
+
 			var oldTile = field.tiles[this.x][this.y];
 			clearEnemy(oldTile);
 

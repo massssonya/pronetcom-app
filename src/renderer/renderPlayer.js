@@ -1,5 +1,5 @@
 function renderPlayer(tile, player) {
-	tile.setType("player");
+	tile.setCharacter("player");
 	tile.setHealthBar(player.health, player.maxHealth);
 	tile.el.classList.remove("face-left", "face-right");
 
@@ -11,7 +11,8 @@ function renderPlayer(tile, player) {
 }
 
 function clearPlayer(tile) {
-	tile.setType("floor");
+	tile.setBaseType("floor");
+	tile.setCharacter(null);
 	tile.setHealthBar(0, 1);
 	tile.el.classList.remove("face-left", "face-right");
 }

@@ -1,5 +1,5 @@
 function renderEnemy(tile, enemy) {
-	tile.setType("enemy");
+	tile.setCharacter("enemy");
 	tile.setHealthBar(enemy.health, enemy.maxHealth);
 
 	tile.el.classList.remove("face-left", "face-right");
@@ -12,6 +12,7 @@ function renderEnemy(tile, enemy) {
 }
 
 function clearEnemy(tile) {
-	tile.setType("floor");
+	tile.setBaseType("floor");
+	tile.setCharacter(null);
 	tile.setHealthBar(0, 1);
 }

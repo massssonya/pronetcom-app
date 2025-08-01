@@ -30,24 +30,58 @@ h1 {
 	height: 640px;
 	transition: transform 0.2s ease;
 }
+
 .field .tile {
 	position: absolute;
 	width: 50px;
 	height: 50px;
-	background-size: 100%;
-	background-image: url(../assets/images/tile-.png);
 	z-index: 5;
 }
-.field .tileW {
+
+.tile-base,
+.tile-item,
+.tile-character {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-size: 100%;
+}
+
+.tile-base.tileW {
 	background-image: url(../assets/images/tile-W.png);
 }
-.field .tileE {
+.tile-base.tileF {
+	background-image: url(../assets/images/tile-.png);
+}
+.tile-item.tileSW {
+	background-image: url(../assets/images/tile-SW.png);
+	z-index: 9;
+}
+.tile-item.tileHP {
+	background-image: url(../assets/images/tile-HP.png);
+	z-index: 9;
+}
+
+.tile-character.tileP {
+	background-image: url(../assets/images/tile-P.png);
+	z-index: 10;
+}
+
+.tile-character.tileE {
 	background-image: url(../assets/images/tile-E.png);
 	z-index: 10;
 }
-.field .tileP {
-	background-image: url(../assets/images/tile-P.png);
-	z-index: 10;
+.tile .health {
+	background-color: #ff0000;
+	z-index: 11;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	height: 3px;
+}
+
+.tileP .health {
+	background-color: #00ff00;
 }
 
 .face-right {
@@ -56,31 +90,6 @@ h1 {
 
 .face-left {
 	transform: scaleX(-1);
-}
-
-.field .tileHP {
-	background-image: url(../assets/images/tile-HP.png);
-	z-index: 9;
-}
-.field .tileSW {
-	background-image: url(../assets/images/tile-SW.png);
-	z-index: 9;
-}
-.field .tile .health {
-	background-color: #ff0000;
-	z-index: 11;
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 3px;
-}
-.field .tileP .health {
-	background-color: #00ff00;
-	z-index: 11;
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 3px;
 }
 
 .tileSW {
