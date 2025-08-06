@@ -1,33 +1,29 @@
-function Tile(x, y, baseType = "wall", itemType = null, characterType = null) {
+function Tile(x, y, baseType, itemType, characterType) {
 	this.x = x;
 	this.y = y;
-
-	this.baseType = baseType; // floor, wall
-	this.itemType = itemType; // sword, health
-	this.characterType = characterType; // player, enemy
+	this.baseType = baseType || "wall";
+	this.itemType = itemType || null;
+	this.characterType = characterType || null;
 
 	this.el = document.createElement("div");
-	this.setBaseType(baseType);
-
-	this.el.style.left = `${x * TILE_SIZE}px`;
-	this.el.style.top = `${y * TILE_SIZE}px`;
-	this.el.dataset.x = x.toString();
-	this.el.dataset.y = y.toString();
+	// this.el.dataset.x = x;
+	// this.el.dataset.y = y;
+	this.render();
 }
 
 Tile.prototype.setBaseType = function (type) {
 	this.baseType = type;
-	updateRendering(this.el, type, this.itemType, this.characterType);
+	this.render();
 };
 
 Tile.prototype.setItem = function (type) {
 	this.itemType = type;
-	updateRendering(this.el, this.baseType, type, this.characterType);
+	this.render();
 };
 
 Tile.prototype.setCharacter = function (type) {
 	this.characterType = type;
-	updateRendering(this.el, this.baseType, this.itemType, type);
+	this.render();
 };
 
 Tile.prototype.isWall = function () {
@@ -60,4 +56,8 @@ Tile.prototype.getElement = function () {
 
 Tile.prototype.setHealthBar = function (health, maxHealth) {
 	renderHealthBar(this.el, health, maxHealth);
+};
+
+Tile.prototype.render = function (container) {
+	renderTile(this, container);
 };

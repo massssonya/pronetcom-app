@@ -1,42 +1,58 @@
-function renderTile(tile, container) {
-	const element = tile.getElement();
-	container.appendChild(element);
+function renderField(tiles, container) {
+	container.innerHTML = "";
+	for (let x = 0; x < tiles.length; x++) {
+		for (let y = 0; y < tiles[x].length; y++) {
+			renderTile(tiles[x][y], container);
+		}
+	}
 }
 
-function updateRendering(tileEl, baseType, itemType, characterType) {
+function renderTile(tile, container) {
+	const tileEl = tile.el;
 	tileEl.innerHTML = "";
 	tileEl.className = "tile";
 
+	tileEl.style.left = tile.x * TILE_SIZE + "px";
+	tileEl.style.top = tile.y * TILE_SIZE + "px";
+
+	renderBase(tileEl, tile.baseType);
+	renderItem(tileEl, tile.itemType);
+	renderCharacter(tileEl, tile.characterType);
+
+	if (container) container.appendChild(tileEl);
+}
+
+function renderBase(tileEl, baseType) {
 	const baseEl = document.createElement("div");
 	baseEl.className = "tile-base";
-	switch (baseType) {
-		case "wall":
-			baseEl.classList.add("tileW");
-			break;
-		default:
-			baseEl.classList.add("tileF");
-	}
+	baseEl.classList.add(baseType === "wall" ? "tileW" : "tileF");
 	tileEl.appendChild(baseEl);
+}
 
-	if (itemType === "sword" || itemType === "health") {
+function renderItem(tileEl, itemType) {
+	if (ITEM_TYPES[itemType]) {
 		const itemEl = document.createElement("div");
 		itemEl.className = "tile-item";
-		if (itemType === "sword") itemEl.classList.add("tileSW");
-		if (itemType === "health") itemEl.classList.add("tileHP");
+		itemEl.classList.add(ITEM_TYPES[itemType]);
 		tileEl.appendChild(itemEl);
 	}
+}
 
+function renderCharacter(tileEl, characterType) {
 	if (characterType === "player" || characterType === "enemy") {
 		const charEl = document.createElement("div");
 		charEl.className = "tile-character";
+
 		if (characterType === "player") {
 			charEl.classList.add("tileP", "face-right");
 		} else {
 			charEl.classList.add("tileE");
 		}
+
 		tileEl.appendChild(charEl);
 	}
 }
+
 
 function renderHealthBar(tileEl, health, maxHealth) {
 	var characterEl = tileEl.querySelector(".tile-character");

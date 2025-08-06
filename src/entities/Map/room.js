@@ -1,9 +1,9 @@
 function Room(x, y, width, height) {
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = height;
+	Rect.call(this, x, y, width, height);
 }
+
+Room.prototype = Object.create(Rect.prototype);
+Room.prototype.constructor = Room;
 
 Room.prototype.getCenter = function () {
 	return {
@@ -18,13 +18,6 @@ Room.prototype.intersectsOtherRoom = function (otherRoom) {
 		isIntersecting(this.y, this.height, otherRoom.y, otherRoom.height)
 	);
 };
-
-function isIntersecting(coordinate_one, size_one, coordinate_two, size_two) {
-	return !(
-		coordinate_one + size_one <= coordinate_two ||
-		coordinate_two + size_two <= coordinate_one
-	);
-}
 
 Room.prototype.isAdjacentToRoad = function (roads) {
 	for (var i = 0; i < roads.length; i++) {

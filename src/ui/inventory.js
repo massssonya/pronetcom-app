@@ -5,16 +5,14 @@ function renderInventory(items) {
 	inventoryEl.innerHTML = "";
 
 	for (var i = 0; i < items.length; i++) {
+		var item = items[i];
 		var el = document.createElement("div");
 		el.className = "inventory-item";
 
-		switch (items[i]) {
-			case "sword":
-				el.classList.add("tileSW");
-				break;
-			default:
-				el.textContent = items[i];
-				break;
+		if (ITEM_TYPES[item]) {
+			el.classList.add(ITEM_TYPES[item]);
+		} else {
+			el.textContent = item;
 		}
 
 		inventoryEl.appendChild(el);

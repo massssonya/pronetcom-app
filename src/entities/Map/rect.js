@@ -1,4 +1,4 @@
-function Road(x, y, width, height) {
+function Rect(x, y, width, height) {
 	this.x = x;
 	this.y = y;
 	this.width = width;

@@ -22,3 +22,8 @@ var DIRECTIONS_FOR_ATTACK = [
 	{ dx: -1, dy: 1 }, // влево-вниз
 	{ dx: 1, dy: 1 } // вправо-вниз
 ];
+
+var ITEM_TYPES = {
+	sword: "tileSW",
+	health: "tileHP"
+};

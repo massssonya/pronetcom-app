@@ -1,9 +1,20 @@
-function Enemy(x, y, options = {}) {
+function Enemy(
+	x,
+	y,
+	options = {
+		missAttackChance: 0
+	}
+) {
 	Character.call(this, x, y);
+
 	this.power = 1;
 	this.health = 3;
 	this.maxHealth = 3;
 	this.direction = Math.random() > 0.5 ? "right" : "left";
+
+	this.missAttackChance = options.missAttackChance;
+
+	EnemyEvents.created(this);
 }
 
 Enemy.prototype = Object.create(Character.prototype);
@@ -17,48 +28,13 @@ Enemy.prototype.isAdjacentTo = function (player) {
 
 Enemy.prototype.attackIfAdjacent = function (player, field) {
 	if (this.isAdjacentTo(player)) {
-		player.takeDamage(this.power, field);
-	}
-};
+		var random = Math.random();
+		var missed = random < this.missAttackChance;
 
-Enemy.prototype.moveTowardsPlayerOrRandom = function (field, player) {
-	var dx = player.x - this.x;
-	var dy = player.y - this.y;
+		EnemyEvents.attacked(this, !missed);
 
-	if (dx > 0) this.direction = "right";
-	else if (dx < 0) this.direction = "left";
-
-	this.attackIfAdjacent(player);
-
-	var directions = shuffleArray([
-		{ dx: sign(dx), dy: 0 },
-		{ dx: 0, dy: sign(dy) },
-		{ dx: sign(dx), dy: sign(dy) }
-	]);
-
-	for (var i = 0; i < directions.length; i++) {
-		var dir = directions[i];
-		var newX = this.x + dir.dx;
-		var newY = this.y + dir.dy;
-		var targetTile = field.tiles[newX][newY];
-		if (
-			newX >= 0 &&
-			newX < field.width &&
-			newY >= 0 &&
-			newY < field.height &&
-			targetTile.isFloor()
-		) {
-			if (targetTile.isPlayer() || targetTile.isEnemy()) continue;
-
-			var oldTile = field.tiles[this.x][this.y];
-			clearEnemy(oldTile);
-
-			this.x = newX;
-			this.y = newY;
-
-			var newTile = field.tiles[this.x][this.y];
-			renderEnemy(newTile, this);
-			break;
+		if (!missed) {
+			player.takeDamage(this.power, field);
 		}
 	}
 };
@@ -79,15 +55,25 @@ Enemy.prototype.patrol = function (field, player) {
 		const newX = this.x + dir.dx;
 		const newY = this.y + dir.dy;
 
+		if (dir.dx > 0) this.direction = "right";
+		else if (dir.dx < 0) this.direction = "left";
+
 		if (newX >= 0 && newX < field.width && newY >= 0 && newY < field.height) {
 			const tile = field.tiles[newX][newY];
 			if (tile.isFloor() && !tile.isEnemy() && !tile.isPlayer()) {
 				clearEnemy(field.tiles[this.x][this.y]);
+				var oldX = this.x;
+				var oldY = this.y;
 				this.x = newX;
 				this.y = newY;
+				EnemyEvents.moved(this, oldX, oldY, newX, newY);
 				renderEnemy(tile, this);
 				break;
 			}
 		}
 	}
 };
+
+Enemy.prototype.died = function () {
+	EnemyEvents.died(this);
+}

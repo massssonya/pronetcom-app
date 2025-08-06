@@ -111,8 +111,12 @@ Field.prototype.spawn = function (type, conditionFn, count) {
 
 	if (type === "player") {
 		this.player = new Player(availableTiles[0].x, availableTiles[0].y, {
-			onDeath: this.stopEnemyLoop.bind(this)
+			onDeath: function () {
+				Emitter.emit("player:died");
+				this.stopEnemyLoop();
+			}.bind(this)
 		});
+		Emitter.emit("player:spawned", this.player);
 
 		const tile = availableTiles[0];
 		tile.setItem(null);
@@ -128,9 +132,12 @@ Field.prototype.spawn = function (type, conditionFn, count) {
 			const tile = availableTiles[i];
 			tile.setItem(null);
 			tile.setCharacter("enemy");
-			const enemy = new Enemy(tile.x, tile.y);
+			const enemy = new Enemy(tile.x, tile.y, {
+				missAttackChance: 0.8
+			});
 			this.enemies.push(enemy);
 			renderEnemy(tile, enemy);
+			Emitter.emit("enemy:spawned", enemy);
 		}
 	}
 };
@@ -139,23 +146,39 @@ Field.prototype.movePlayer = function (dx, dy) {
 	var newX = this.player.x + dx;
 	var newY = this.player.y + dy;
 
-	if (newX < 0 || newX >= this.width || newY < 0 || newY >= this.height) return;
+	if (dx < 0) this.player.direction = "left";
+	if (dx > 0) this.player.direction = "right";
+
+	if (newX < 0 || newX >= this.width || newY < 0 || newY >= this.height) {
+		const currentTile = this.tiles[this.player.x][this.player.y];
+		renderPlayer(currentTile, this.player);
+		return;
+	}
 
 	var targetTile = this.tiles[newX][newY];
 
-	if (!targetTile.isFloor() && !targetTile.isHealth() && !targetTile.isSword())
+	if (
+		!targetTile.isFloor() &&
+		!targetTile.isHealth() &&
+		!targetTile.isSword()
+	) {
+		const currentTile = this.tiles[this.player.x][this.player.y];
+		renderPlayer(currentTile, this.player);
 		return;
+	}
 	if (targetTile.isEnemy()) return;
 
 	if (targetTile.isHealth()) {
 		this.player.setHealth(1);
 		targetTile.setItem(null);
+		Emitter.emit("player:heal", this.player);
 	}
 
 	if (targetTile.isSword()) {
 		this.player.setPower(1);
 		this.player.addToInventory("sword");
 		targetTile.setItem(null);
+		Emitter.emit("player:pickup:sword", this.player);
 	}
 
 	var oldTile = this.tiles[this.player.x][this.player.y];
@@ -188,14 +211,18 @@ Field.prototype.playerAttack = function () {
 
 			enemy.setHealth(-this.player.power);
 
+			Emitter.emit("enemy:healthChanged", enemy);
+
 			renderEnemy(tile, enemy);
 
 			if (enemy.health <= 0) {
 				this.enemies.splice(this.enemies.indexOf(enemy), 1);
+				clearEnemy(tile);
+				Emitter.emit("enemy:died", enemy);
 				if (this.enemies.length === 0) {
 					this.stopEnemyLoop();
+					Emitter.emit("game:win");
 				}
-				clearEnemy(tile);
 			}
 		}
 	}
